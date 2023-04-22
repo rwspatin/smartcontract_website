@@ -1,3 +1,4 @@
+//Deploy.js create a local blockchain and destroy it when finish runnig
 const main = async () => {
     //Get the owner's wallet address and get a random address wallet
     const [owner, randomPerson] = await hre.ethers.getSigners();

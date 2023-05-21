@@ -32,6 +32,13 @@ contract WavePortal {
      */
     Wave[] waves;
 
+    /*
+     * This is an address => uint mapping, this means I can associate a address with a number
+     * In this case, I'll set the address with the last time that the user interact
+     * This will be used to create a cooldown and avoid span
+     */
+    mapping(address => uint256) public lastWavedAt;
+
     // payable set the contructor to be possible send amount to person who interact
     constructor() payable{
         console.log("SmartContract Started. Let's the game begin");
@@ -42,6 +49,19 @@ contract WavePortal {
     }
 
     function wave(string memory _message) public {
+        /*
+         * We must make sure that the timestamp value is at least 15 min greater than the lat setted timestamp
+         */
+        require(
+            lastWavedAt[msg.sender] + 15 minutes < block.timestamp,
+            "Wait 15m"
+        );
+        
+        /*
+         * Update the usert timestemp
+         */
+        lastWavedAt[msg.sender] = block.timestamp;
+
         totalWaves += 1;
         //msg.sender is the user's wallet address that called the function wave
         console.log("%s May The Force Be With You! %s", msg.sender, _message);

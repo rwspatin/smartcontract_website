@@ -6,13 +6,28 @@ const main = async () => {
     const waveContractFactory = await hre.ethers.getContractFactory("WavePortal");
     
     //Create a simulated local blockchain
-    const waveContract = await waveContractFactory.deploy();
+    //Set amount on the contract
+    const waveContract = await waveContractFactory.deploy({
+      value: hre.ethers.utils.parseEther("0.1"),
+    });
+
     //wait until the simulated blockchain is ready to go
     await waveContract.deployed();
 
     //Show where this blockchain is located
     console.log("Contract deployed to:", waveContract.address);
-    
+
+    /*
+    * Get the amount of the contract
+    */
+    let contractBalance = await hre.ethers.provider.getBalance(
+      waveContract.address
+    );
+    console.log(
+      "Contract amount:",
+      hre.ethers.utils.formatEther(contractBalance)
+    );
+
     let waveCount;
     waveCount = await waveContract.getTotalWaves();
     console.log("Interactions count:", waveCount.toNumber())
@@ -20,14 +35,29 @@ const main = async () => {
     /*
     Sending a interactions with message
     */
-    let waveTxn = await waveContract.wave("I'm one with the force and the force is with me");
+    let waveTxn = await waveContract.wave("I'm one with the force and the force is with me 1");
     await waveTxn.wait(); //storing the message to be minered
+
+    /*
+    Sending a interactions with message
+    */
+    let waveTxn2 = await waveContract.wave("I'm one with the force and the force is with me 2");
+    await waveTxn2.wait(); //storing the message to be minered
 
     //Get the owner's wallet address and get a random address wallet
     const [_, randomPerson] = await hre.ethers.getSigners();
 
     waveTxn = await waveContract.connect(randomPerson).wave("Maibe a sith here");
     await waveTxn.wait(); //storing another message to be minered
+
+    /*
+    * Get the new amount on the contract
+    */
+    contractBalance = await hre.ethers.provider.getBalance(waveContract.address);
+    console.log(
+      "New Contract amount:",
+      hre.ethers.utils.formatEther(contractBalance)
+    );
 
     let allWaives = await waveContract.getTotalWaves();
     let waivesList = await waveContract.getAllWaves();
